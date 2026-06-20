@@ -24,13 +24,17 @@ build/
 htmlcov/
 .tox/
 
+# Linter cache
+.ruff_cache/
+
 # Environment files — NEVER commit secrets
 .env
 .env.*
 !.env.example
 
 # Cryptographic keys — CRITICAL: these must never be committed
-keys/
+keys/*.pem
+keys/*.pem.*
 
 # IDE
 .idea/

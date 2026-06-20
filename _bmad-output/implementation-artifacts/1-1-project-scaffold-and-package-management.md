@@ -4,7 +4,7 @@ baseline_commit: NO_VCS
 
 # Story 1.1: Project Scaffold & Package Management
 
-Status: review
+Status: done
 
 ## Story
 
@@ -55,6 +55,17 @@ So that any contributor can reproduce the exact environment with a single `uv sy
 - [x] Task 6: Verify test runner works (AC: 1)
   - [x] Create `tests/__init__.py` (empty)
   - [x] Run `uv run pytest tests/ -v` — should report "no tests ran" or "0 passed" with no errors (not a failure)
+
+### Review Findings
+
+- [x] [Review][Decision] OpenSSH key format incompatible with PyJWT EdDSA — Resolved: regenerated keys in PKCS8/PEM format using `cryptography` library. PyJWT sign+verify round-trip confirmed working.
+- [x] [Review][Patch] `keys/` gitignore rule excludes `keys/.gitkeep` — Fixed: changed `keys/` to `keys/*.pem` + `keys/*.pem.*` [`.gitignore`]
+- [x] [Review][Patch] `.ruff_cache/` not in `.gitignore` — Fixed: added `.ruff_cache/` entry [`.gitignore`]
+- [x] [Review][Patch] No security lint rules in ruff config — Fixed: added `"S"` to `[tool.ruff.lint].select`; `ruff check .` still passes [`pyproject.toml`]
+- [x] [Review][Patch] Docker `uv sync` note missing `--no-dev` flag — Fixed: updated to `uv sync --frozen --no-cache --no-dev` [story Dev Notes]
+- [x] [Review][Defer] Alembic async env.py — no sync PostgreSQL driver present; Story 1.3 must rewrite the generated `env.py` to use async Alembic pattern (`asyncio.run()` + `run_sync`) — deferred to Story 1.3
+- [x] [Review][Defer] pytest exit code 5 fails default CI pipelines — no CI configured yet — deferred to post-scope CI setup story
+- [x] [Review][Defer] `.env.example` absent until Story 1.2 — `.gitignore` negation rule correct; file creation is intentionally deferred
 
 ## Dev Notes
 
@@ -128,8 +139,8 @@ uv init --app
 # Install all deps (production + dev groups)
 uv sync --all-groups
 
-# Install production only (e.g., in Docker)
-uv sync --frozen --no-cache
+# Install production only (e.g., in Docker) — --no-dev excludes ruff/pytest from image
+uv sync --frozen --no-cache --no-dev
 
 # Add a new production dep
 uv add <package>
