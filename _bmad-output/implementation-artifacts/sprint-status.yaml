@@ -1,0 +1,99 @@
+# generated: 2026-06-20
+# last_updated: 2026-06-20
+# project: agentic-fintech-backend
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: _bmad-output/implementation-artifacts
+#
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories are worked sequentially by default; parallel work supported if capacity allows
+# - Developer creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs bmad-code-review (fresh context recommended)
+# - Use bmad-sprint-status to check current status at any time
+# - Use bmad-create-story to prepare the next backlog story for development
+
+generated: 2026-06-20
+last_updated: 2026-06-20T23:16:00+05:30
+project: agentic-fintech-backend
+project_key: NOKEY
+tracking_system: file-system
+story_location: _bmad-output/implementation-artifacts
+
+development_status:
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Epic 1: Project Foundation & Containerized Environment
+  # Goal: Developer can run `docker compose up` and have a healthy containerized
+  #       FastAPI + PostgreSQL stack with correct schema — no host setup needed.
+  # ─────────────────────────────────────────────────────────────────────────────
+  epic-1: in-progress
+  1-1-project-scaffold-and-package-management: review
+  1-2-docker-stack-and-environment-configuration: backlog
+  1-3-database-schema-and-alembic-migrations: backlog
+  1-4-fastapi-application-bootstrap-and-startup-validation: backlog
+  epic-1-retrospective: optional
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Epic 2: UCP Machine-Readable Discovery & Product Catalog
+  # Goal: Any UCP-compliant AI Agent can fetch /.well-known/ucp and discover
+  #       capabilities, signing key, routes, and product catalog in one call.
+  # ─────────────────────────────────────────────────────────────────────────────
+  epic-2: backlog
+  2-1-static-product-catalog-and-application-state-initialization: backlog
+  2-2-ucp-discovery-profile-endpoint: backlog
+  epic-2-retrospective: optional
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Epic 3: AP2 Cryptographic Handshake & Checkout Session
+  # Goal: Mock AI Agent can initiate a secure checkout session while the AP2
+  #       Dependency guards the settlement endpoint against invalid mandates.
+  # ─────────────────────────────────────────────────────────────────────────────
+  epic-3: backlog
+  3-1-ap2-mandate-verification-dependency: backlog
+  3-2-checkout-session-endpoint: backlog
+  epic-3-retrospective: optional
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Epic 4: Autonomous Payment Settlement
+  # Goal: AI Agent completes full HNP commerce cycle — signed mandate verified,
+  #       Stripe Sandbox charged, settlement persisted with mandate audit trail.
+  # ─────────────────────────────────────────────────────────────────────────────
+  epic-4: backlog
+  4-1-stripe-sandbox-payment-service: backlog
+  4-2-mandate-gated-settlement-endpoint: backlog
+  epic-4-retrospective: optional
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Epic 5: End-to-End Validation, Agent Simulation & Documentation
+  # Goal: Developer validates system with pytest, runs agent_client.py for
+  #       a live purchase demo, and onboards collaborators via README alone.
+  # ─────────────────────────────────────────────────────────────────────────────
+  epic-5: backlog
+  5-1-automated-pytest-test-suite: backlog
+  5-2-agent-client-simulation-script: backlog
+  5-3-structured-logging-and-developer-documentation: backlog
+  epic-5-retrospective: optional

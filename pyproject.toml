@@ -1,0 +1,48 @@
+[project]
+name = "agentic-fintech-backend"
+version = "0.1.0"
+description = "Agentic Banking Backend — UCP/AP2 prototype"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi[standard]",
+    "sqlalchemy[asyncio]",
+    "asyncpg",
+    "alembic",
+    "pyjwt",
+    "cryptography",
+    "stripe",
+    "python-json-logger",
+    "pydantic-settings",
+    "httpx",
+    "typer",
+]
+
+[dependency-groups]
+dev = [
+    "ruff",
+    "pytest",
+    "pytest-asyncio",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 88
+exclude = [
+    "_bmad",
+    "_bmad-output",
+    ".agents",
+    ".venv",
+    "alembic/versions",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

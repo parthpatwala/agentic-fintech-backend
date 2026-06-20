@@ -1,0 +1,43 @@
+# Virtual environment
+.venv/
+
+# uv
+.uv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+.Python
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+*.egg
+
+# Test artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Environment files — NEVER commit secrets
+.env
+.env.*
+!.env.example
+
+# Cryptographic keys — CRITICAL: these must never be committed
+keys/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
