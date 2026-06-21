@@ -1,0 +1,29 @@
+# Python runtime artifacts
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.ruff_cache/
+.pytest_cache/
+.coverage
+
+# Version control
+.git/
+
+# Secrets and keys — never bake into image; mounted at runtime via Compose
+keys/
+.env
+.env.*
+
+# BMad workflow files — not needed in container
+_bmad/
+_bmad-output/
+.agents/
+
+
+# Test suite — not needed in production image
+tests/
+
+# Documentation
+docs/
+REQUIREMENT.md
