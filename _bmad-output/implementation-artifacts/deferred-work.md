@@ -1,5 +1,26 @@
 # Deferred Work
 
+## Deferred from: code review of 2-2-ucp-discovery-profile-endpoint (2026-06-22)
+
+- **Unguarded `app.state.jwk`/`catalog` at request time** — If lifespan is bypassed the handler will 500. Accepted as startup invariant — FastAPI will not serve requests if the lifespan context manager raises, so `app.state` is guaranteed populated when the handler runs.
+- **`exc.doc` exposes full catalog file content in JSONDecodeError** — `exc.doc` stores the raw parse input and can appear in logs. Catalog contains no secrets; accept for prototype. Add catalog-size limit if data grows sensitive.
+- **`IsADirectoryError` / `UnicodeDecodeError` not caught for catalog path** — Same deferred pattern from Story 2.1. Rare edge in local Docker setup; handle for production hardening.
+- **No `Cache-Control` headers on discovery response** — Discovery profile is static per-startup. Adding `Cache-Control: public, max-age=3600` would reduce unnecessary repeat fetches. Deferred to post-prototype.
+- **`crypto.derive_jwk()` unexpected exception type** — Pre-existing Story 2.1 deferred: derive_jwk may raise outside (ValueError, TypeError) from cryptography internals. Add broad except → RuntimeError wrap if hardening.
+- **`_FAKE_JWK.x = "fake_x"` not base64url-valid** — Isolation tests intentionally use dummy values; real base64url compliance is verified in `test_state_init.py`. If future tests exercise JWK consumers, use `base64.urlsafe_b64encode(bytes(32)).rstrip(b"=").decode()`.
+- **No test for absent `app.state` attributes in handler** — Tests inject state via fixture; missing-state path is untested. A negative fixture covering this path would confirm 500 behavior under partial startup failure.
+
+## Deferred from: code review of 2-1-static-product-catalog-and-application-state-initialization (2026-06-22)
+
+- **`price: float` vs `Decimal`** — Architecture explicitly defines `price: float` for `ProductItem`; monetary precision is a prototype-scope concern. Revisit before any production settlement math uses catalog prices directly.
+- **ISO 4217 currency not validated on `ProductItem`** — `currency: str` accepts any string; hardcoded catalog has valid USD values. Add a pattern constraint (e.g. `Field(pattern=r"^[A-Z]{3}$")`) when the catalog becomes user-editable.
+- **Empty `signing_keys` list not prevented in `UCPProfile`** — No `min_length=1` on the field; Story 2.2 always populates it from `app.state.jwk`. Add the constraint in Story 2.2.
+- **Duplicate product `id` values load without error** — A uniqueness check is not enforced at load time; the hardcoded catalog has unique IDs. Add a set-based check if the catalog ever becomes writable.
+- **`app.state.catalog` is a mutable list** — Could be mutated by a request handler. Prototype scope; convert to tuple or frozen structure before any write-path handler exists.
+- **`IsADirectoryError` and other `OSError` variants not caught for catalog path** — Same deferred pattern as `public_key_path`; rare edge in local dev; add broad `OSError` catch for production hardening.
+- **Malformed-JSON test doesn't verify process exit code** — Same deferred pattern from Story 1.4; subprocess-level exit code testing deferred to Story 5.x.
+- **Relative `catalog_path` depends on process CWD** — Same pattern as `public_key_path`; documented in `.env.example`; acceptable for prototype Docker deployment.
+
 ## Deferred from: code review of 1-4-fastapi-application-bootstrap-and-startup-validation (2026-06-21)
 
 - **DATABASE_URL sync scheme gives cryptic driver error** — if developer accidentally uses `postgresql://` instead of `postgresql+asyncpg://`, SQLAlchemy raises an internal driver error rather than a clear validation message. Prototype scope; `.env.example` documents the correct scheme.

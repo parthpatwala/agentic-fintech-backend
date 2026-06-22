@@ -1,0 +1,7 @@
+[
+  {"id": "prod_001", "name": "Wireless Headphones", "price": 79.99, "currency": "USD"},
+  {"id": "prod_002", "name": "Mechanical Keyboard", "price": 129.99, "currency": "USD"},
+  {"id": "prod_003", "name": "USB-C Hub", "price": 49.99, "currency": "USD"},
+  {"id": "prod_004", "name": "HD Webcam", "price": 89.99, "currency": "USD"},
+  {"id": "prod_005", "name": "Desk Lamp LED", "price": 34.99, "currency": "USD"}
+]

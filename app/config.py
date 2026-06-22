@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     database_url: str
     stripe_api_key: str
     public_key_path: str = "keys/public_key.pem"
+    catalog_path: str = "catalog/products.json"
 
     @field_validator("stripe_api_key")
     @classmethod

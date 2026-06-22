@@ -1,14 +1,19 @@
 import contextlib
+import json
 import logging
 from collections.abc import AsyncIterator
 
 from fastapi import FastAPI
+from pydantic import ValidationError
 from pythonjsonlogger.json import JsonFormatter
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from app.config import Settings
 from app.db import session as db_session
+from app.models.schemas import ProductItem
+from app.routers import discovery
+from app.services import crypto
 
 logger = logging.getLogger(__name__)
 
@@ -70,7 +75,61 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         extra={"event": "startup", "path": settings.public_key_path},
     )
 
-    # 3. Initialize DB engine and verify connectivity; dispose engine on failure
+    # 3. Parse public key object + derive JWK (both cached in app.state)
+    try:
+        app.state.public_key = crypto.load_public_key(app.state.public_key_bytes)
+    except (ValueError, TypeError) as exc:
+        raise ValueError(
+            f"PUBLIC_KEY_PATH '{settings.public_key_path}' does not contain a valid "
+            f"Ed25519 public key: {exc}"
+        ) from exc
+    app.state.jwk = crypto.derive_jwk(app.state.public_key)
+    logger.info("JWK derived", extra={"event": "startup"})
+
+    # 4. Load and validate product catalog
+    try:
+        with open(settings.catalog_path, encoding="utf-8") as f:
+            raw = json.load(f)
+    except FileNotFoundError as exc:
+        raise FileNotFoundError(
+            f"CATALOG_PATH '{settings.catalog_path}' does not exist."
+        ) from exc
+    except PermissionError as exc:
+        raise PermissionError(
+            f"CATALOG_PATH '{settings.catalog_path}' is not readable — "
+            "check file permissions."
+        ) from exc
+    except json.JSONDecodeError as exc:
+        raise json.JSONDecodeError(
+            f"CATALOG_PATH '{settings.catalog_path}' contains invalid JSON: {exc.msg}",
+            exc.doc,
+            exc.pos,
+        ) from exc
+
+    if not isinstance(raw, list):
+        raise TypeError(
+            f"CATALOG_PATH '{settings.catalog_path}' must contain a JSON array, "
+            f"got {type(raw).__name__}."
+        )
+    try:
+        app.state.catalog = [ProductItem.model_validate(item) for item in raw]
+    except (ValidationError, TypeError) as exc:
+        raise ValueError(
+            f"CATALOG_PATH '{settings.catalog_path}' contains invalid product "
+            f"data: {exc}"
+        ) from exc
+
+    if not app.state.catalog:
+        raise ValueError(
+            f"CATALOG_PATH '{settings.catalog_path}' loaded an empty list — "
+            "at least one product is required."
+        )
+    logger.info(
+        "Catalog loaded",
+        extra={"event": "startup", "count": len(app.state.catalog)},
+    )
+
+    # 5. Initialize DB engine and verify connectivity; dispose engine on failure
     engine = db_session.init_engine(settings.database_url)
     try:
         await check_db_connectivity(engine)
@@ -92,6 +151,8 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 
 app = FastAPI(title="Agentic Fintech Backend", lifespan=lifespan)
+
+app.include_router(discovery.router)
 
 
 @app.get("/health")

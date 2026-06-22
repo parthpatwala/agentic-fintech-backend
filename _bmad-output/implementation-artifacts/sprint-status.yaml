@@ -37,7 +37,7 @@
 # - Use bmad-create-story to prepare the next backlog story for development
 
 generated: 2026-06-20
-last_updated: 2026-06-21T13:30:00+05:30
+last_updated: 2026-06-22T22:44:00+05:30
 project: agentic-fintech-backend
 project_key: NOKEY
 tracking_system: file-system
@@ -50,7 +50,7 @@ development_status:
   # Goal: Developer can run `docker compose up` and have a healthy containerized
   #       FastAPI + PostgreSQL stack with correct schema — no host setup needed.
   # ─────────────────────────────────────────────────────────────────────────────
-  epic-1: in-progress
+  epic-1: done
   1-1-project-scaffold-and-package-management: done
   1-2-docker-stack-and-environment-configuration: done
   1-3-database-schema-and-alembic-migrations: done
@@ -62,9 +62,9 @@ development_status:
   # Goal: Any UCP-compliant AI Agent can fetch /.well-known/ucp and discover
   #       capabilities, signing key, routes, and product catalog in one call.
   # ─────────────────────────────────────────────────────────────────────────────
-  epic-2: backlog
-  2-1-static-product-catalog-and-application-state-initialization: backlog
-  2-2-ucp-discovery-profile-endpoint: backlog
+  epic-2: done
+  2-1-static-product-catalog-and-application-state-initialization: done
+  2-2-ucp-discovery-profile-endpoint: done
   epic-2-retrospective: optional
 
   # ─────────────────────────────────────────────────────────────────────────────
