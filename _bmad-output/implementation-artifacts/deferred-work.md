@@ -1,5 +1,26 @@
 # Deferred Work
 
+## Deferred from: code review of 3-2-checkout-session-endpoint (2026-06-27)
+
+- **ISO 4217 allowlist covers only 20 of ~170 valid currencies** — "AED", "THB", "CZK" etc. return 422 erroneously. Intentionally narrow for prototype (USD/EUR/GBP sufficient for demo); expand with `pycountry` or a full inline set when broader currency support is needed.
+- **Sub-cent total DB precision mismatch** — multi-dp unit prices (e.g. $0.001) produce Decimal totals with >2dp; PostgreSQL NUMERIC(10,2) rounds on insert, so DB value differs from response `total_amount`. Prototype scope — real prices use 2dp.
+- **Whitespace-only `agent_id` accepted** — `min_length=1` passes `" "` (single space). Add `strip_whitespace=True` or a validator if agent identity is security-sensitive.
+- **Empty item `name` accepted** — `name: str` has no `min_length` constraint; blank names stored in JSONB.
+- **`get_invoice` defined but never called** — stub for Story 4.2 which looks up invoices by session_id for settlement; no tests cover it yet.
+- **`PaymentMandatePayload.currency` lacks ISO 4217 validation** — inconsistency with `CheckoutRequest.currency`; Story 3.1 scope.
+- **No authentication on `POST /api/checkout`** — endpoint is fully open; authentication/authorization is an infrastructure concern deferred to a later story.
+
+## Deferred from: code review of 3-1-ap2-mandate-verification-dependency (2026-06-22)
+
+- **`aud`/`iss` claim validation in `jwt.decode`** — single-purpose Ed25519 key pair, no cross-service reuse in this prototype; revisit if key sharing across services is introduced.
+- **JTI replay protection** — valid JWT can be resubmitted until expiry; deduplication store (Redis/DB) required; out of scope for Story 3.1 stub handler.
+- **`amount: float` → `Decimal` for monetary precision** — schema-level change with downstream impact; same prototype pattern as `price: float` in Story 2.1.
+- **Rate limiting on `POST /api/complete`** — infrastructure/middleware concern; not introduced by Story 3.1.
+- **Non-`PyJWTError` from cryptography layer propagates as 500** — PyJWT wraps most EdDSA crypto exceptions; edge case not reproducible with current library versions; add broad catch if library is upgraded.
+- **`nbf` claim absence** — no lower temporal bound on token validity; not required by AP2 spec.
+- **`client_ip` logs proxy IP, not real client** — `request.client.host` reflects proxy behind reverse-proxy/LB; needs `X-Forwarded-For` / `Forwarded` header handling; infrastructure concern.
+- **Parallel-test race condition from `app.state` mutation** — `setup_public_key_state` fixture mutates a module-level singleton; race manifests only under `pytest-xdist`; not used in this project.
+
 ## Deferred from: code review of 2-2-ucp-discovery-profile-endpoint (2026-06-22)
 
 - **Unguarded `app.state.jwk`/`catalog` at request time** — If lifespan is bypassed the handler will 500. Accepted as startup invariant — FastAPI will not serve requests if the lifespan context manager raises, so `app.state` is guaranteed populated when the handler runs.

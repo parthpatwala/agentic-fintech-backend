@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 from app.config import Settings
 from app.db import session as db_session
 from app.models.schemas import ProductItem
-from app.routers import discovery
+from app.routers import checkout, complete, discovery
 from app.services import crypto
 
 logger = logging.getLogger(__name__)
@@ -153,6 +153,8 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 app = FastAPI(title="Agentic Fintech Backend", lifespan=lifespan)
 
 app.include_router(discovery.router)
+app.include_router(checkout.router)
+app.include_router(complete.router)
 
 
 @app.get("/health")

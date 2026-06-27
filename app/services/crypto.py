@@ -1,11 +1,19 @@
 import base64
 
+import jwt
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 from cryptography.hazmat.primitives.serialization import (
     Encoding,
     PublicFormat,
     load_pem_public_key,
 )
+
+
+class MandateVerificationError(Exception):
+    """Raised by verify_mandate on any JWT validation failure.
+
+    Wraps jwt.exceptions.PyJWTError so callers never need to import PyJWT.
+    """
 
 
 def load_public_key(key_bytes: bytes) -> Ed25519PublicKey:
@@ -30,6 +38,19 @@ def derive_jwk(public_key: Ed25519PublicKey) -> dict[str, str]:
     return {"kty": "OKP", "crv": "Ed25519", "x": x}
 
 
-def verify_mandate(*args: object, **kwargs: object) -> None:
-    """Verify an AP2 Payment Mandate JWT. Implemented in Story 3.1."""
-    raise NotImplementedError("verify_mandate is implemented in Story 3.1")
+def verify_mandate(token: str, public_key: Ed25519PublicKey) -> dict[str, object]:
+    """Verify an AP2 Payment Mandate JWT using EdDSA.
+
+    Returns the decoded payload dict if the signature is valid and exp is present.
+    Raises MandateVerificationError for any JWT validation failure: invalid
+    signature, algorithm confusion, missing or expired exp claim.
+    """
+    try:
+        return jwt.decode(
+            token,
+            public_key,
+            algorithms=["EdDSA"],
+            options={"require": ["exp"]},
+        )
+    except jwt.exceptions.PyJWTError as exc:
+        raise MandateVerificationError(str(exc)) from exc

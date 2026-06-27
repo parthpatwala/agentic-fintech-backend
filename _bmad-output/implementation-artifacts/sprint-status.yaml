@@ -37,7 +37,7 @@
 # - Use bmad-create-story to prepare the next backlog story for development
 
 generated: 2026-06-20
-last_updated: 2026-06-22T22:44:00+05:30
+last_updated: 2026-06-27T12:55:00+05:30
 project: agentic-fintech-backend
 project_key: NOKEY
 tracking_system: file-system
@@ -72,9 +72,9 @@ development_status:
   # Goal: Mock AI Agent can initiate a secure checkout session while the AP2
   #       Dependency guards the settlement endpoint against invalid mandates.
   # ─────────────────────────────────────────────────────────────────────────────
-  epic-3: backlog
-  3-1-ap2-mandate-verification-dependency: backlog
-  3-2-checkout-session-endpoint: backlog
+  epic-3: in-progress
+  3-1-ap2-mandate-verification-dependency: done
+  3-2-checkout-session-endpoint: done
   epic-3-retrospective: optional
 
   # ─────────────────────────────────────────────────────────────────────────────
