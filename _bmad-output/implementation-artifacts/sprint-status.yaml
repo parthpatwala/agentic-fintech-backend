@@ -37,7 +37,7 @@
 # - Use bmad-create-story to prepare the next backlog story for development
 
 generated: 2026-06-20
-last_updated: 2026-06-27T12:55:00+05:30
+last_updated: 2026-06-28T14:00:00+05:30
 project: agentic-fintech-backend
 project_key: NOKEY
 tracking_system: file-system
@@ -72,7 +72,7 @@ development_status:
   # Goal: Mock AI Agent can initiate a secure checkout session while the AP2
   #       Dependency guards the settlement endpoint against invalid mandates.
   # ─────────────────────────────────────────────────────────────────────────────
-  epic-3: in-progress
+  epic-3: done
   3-1-ap2-mandate-verification-dependency: done
   3-2-checkout-session-endpoint: done
   epic-3-retrospective: optional
@@ -82,9 +82,9 @@ development_status:
   # Goal: AI Agent completes full HNP commerce cycle — signed mandate verified,
   #       Stripe Sandbox charged, settlement persisted with mandate audit trail.
   # ─────────────────────────────────────────────────────────────────────────────
-  epic-4: backlog
-  4-1-stripe-sandbox-payment-service: backlog
-  4-2-mandate-gated-settlement-endpoint: backlog
+  epic-4: done
+  4-1-stripe-sandbox-payment-service: done
+  4-2-mandate-gated-settlement-endpoint: done
   epic-4-retrospective: optional
 
   # ─────────────────────────────────────────────────────────────────────────────

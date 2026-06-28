@@ -3,6 +3,7 @@ import json
 import logging
 from collections.abc import AsyncIterator
 
+import stripe
 from fastapi import FastAPI
 from pydantic import ValidationError
 from pythonjsonlogger.json import JsonFormatter
@@ -50,7 +51,11 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     settings = Settings()
     logger.info("Configuration validated", extra={"event": "startup"})
 
-    # 2. Load public key file — explicit errors for missing, unreadable, or empty file
+    # 2. Configure Stripe SDK with validated test key
+    stripe.api_key = settings.stripe_api_key
+    logger.info("Stripe API key configured", extra={"event": "startup"})
+
+    # 3. Load public key file — explicit errors for missing, unreadable, or empty file
     try:
         with open(settings.public_key_path, "rb") as f:
             app.state.public_key_bytes = f.read()
@@ -75,7 +80,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         extra={"event": "startup", "path": settings.public_key_path},
     )
 
-    # 3. Parse public key object + derive JWK (both cached in app.state)
+    # 4. Parse public key object + derive JWK (both cached in app.state)
     try:
         app.state.public_key = crypto.load_public_key(app.state.public_key_bytes)
     except (ValueError, TypeError) as exc:
@@ -86,7 +91,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     app.state.jwk = crypto.derive_jwk(app.state.public_key)
     logger.info("JWK derived", extra={"event": "startup"})
 
-    # 4. Load and validate product catalog
+    # 5. Load and validate product catalog
     try:
         with open(settings.catalog_path, encoding="utf-8") as f:
             raw = json.load(f)
@@ -129,7 +134,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         extra={"event": "startup", "count": len(app.state.catalog)},
     )
 
-    # 5. Initialize DB engine and verify connectivity; dispose engine on failure
+    # 6. Initialize DB engine and verify connectivity; dispose engine on failure
     engine = db_session.init_engine(settings.database_url)
     try:
         await check_db_connectivity(engine)

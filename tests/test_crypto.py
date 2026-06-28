@@ -16,6 +16,7 @@ import base64
 import json
 import logging
 import time
+from unittest.mock import AsyncMock, patch
 from uuid import uuid4
 
 import jwt
@@ -23,6 +24,7 @@ import pytest
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from httpx import ASGITransport, AsyncClient
 
+from app.db.session import get_db_session
 from app.main import app
 from app.services.crypto import MandateVerificationError, verify_mandate
 
@@ -51,6 +53,23 @@ def setup_public_key_state(ed25519_key_pair):
     app.state.public_key = public_key
     yield
     del app.state.public_key
+
+
+@pytest.fixture
+def mock_db_session():
+    return AsyncMock()
+
+
+@pytest.fixture(autouse=True)
+def override_db(mock_db_session):
+    """Override get_db_session — complete endpoint requires DB session dependency."""
+
+    async def _get_session():
+        yield mock_db_session
+
+    app.dependency_overrides[get_db_session] = _get_session
+    yield
+    app.dependency_overrides.pop(get_db_session, None)
 
 
 # ── Token helpers (scoped to each test via ed25519_key_pair) ──────────────────
@@ -153,14 +172,25 @@ def test_verify_mandate_missing_exp_raises(ed25519_key_pair) -> None:
 
 
 @pytest.mark.asyncio
-async def test_mandate_dep_valid_returns_200(ed25519_key_pair) -> None:
-    """Valid EdDSA JWT in payment_mandate → stub endpoint returns 200."""
+async def test_mandate_dep_valid_returns_404_when_no_invoice(ed25519_key_pair) -> None:
+    """Valid EdDSA JWT passes dependency; handler returns 404 when invoice missing."""
     private_key, _, _ = ed25519_key_pair
     token = _valid_token(private_key)
-    _transport = ASGITransport(app=app)
-    async with AsyncClient(transport=_transport, base_url="http://test") as client:
-        response = await client.post("/api/complete", json={"payment_mandate": token})
-    assert response.status_code == 200
+
+    with patch(
+        "app.routers.complete.invoice_service.get_invoice",
+        new_callable=AsyncMock,
+        return_value=None,
+    ):
+        _transport = ASGITransport(app=app)
+        async with AsyncClient(transport=_transport, base_url="http://test") as client:
+            response = await client.post(
+                "/api/complete",
+                json={"payment_mandate": token},
+            )
+
+    assert response.status_code == 404
+    assert response.json()["detail"]["reason"] == "session_not_found"
 
 
 @pytest.mark.asyncio

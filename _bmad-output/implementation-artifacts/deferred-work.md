@@ -1,5 +1,10 @@
 # Deferred Work
 
+## Deferred from: code review of 4-2-mandate-gated-settlement-endpoint (2026-06-28)
+
+- **Concurrent duplicate settlement requests can both pass `status == "pending"` check (TOCTOU race)** — two parallel `POST /api/complete` calls for the same session can both read `pending`, both call Stripe, and double-charge. Needs `SELECT … FOR UPDATE` or idempotency key; prototype accepts single-threaded demo usage.
+- **Stripe charge succeeds but DB commit fails leaves orphaned payment with no compensation** — handler charges Stripe before DB write; if the session commit fails, customer is charged but invoice stays `pending`. Production needs idempotency + reconciliation; out of prototype scope.
+
 ## Deferred from: code review of 3-2-checkout-session-endpoint (2026-06-27)
 
 - **ISO 4217 allowlist covers only 20 of ~170 valid currencies** — "AED", "THB", "CZK" etc. return 422 erroneously. Intentionally narrow for prototype (USD/EUR/GBP sufficient for demo); expand with `pycountry` or a full inline set when broader currency support is needed.
@@ -61,6 +66,17 @@
 - **Stale image on rebuild** — `docker compose up` without `--build` reuses the old image after `pyproject.toml`/`uv.lock` changes. Expected Docker behaviour; always use `--build` after dependency changes.
 - **No Dockerfile `HEALTHCHECK`** — Docker itself cannot surface app health without it; Compose healthcheck covers local dev. Add for any shared/production deployment.
 - **README.md not copied before `uv sync`** — `pyproject.toml` declares `readme = "README.md"` but only `pyproject.toml` + `uv.lock` are copied before `RUN uv sync`. No impact on current `uv sync --no-dev` flow; would matter if a wheel build were added later.
+
+## Deferred from: code review of 4-1-stripe-sandbox-payment-service (2026-06-28)
+
+- **No idempotency key on `stripe.PaymentIntent.create`** — unsafe to retry on timeout/5xx; a duplicate retry would create a second charge. Stripe requires an `idempotency_key` for safe retries. Caller (Story 4.2) should supply a session-derived key.
+- **No timeout override on `asyncio.to_thread` Stripe call** — Stripe SDK default is 80s; no override configured; event loop thread pool could exhaust under slow Stripe. Production concern: configure `stripe.default_http_client` with a tighter timeout.
+- **`confirm=True` without `return_url` — 3DS cards fail in production** — `pm_card_visa` does not trigger 3DS in sandbox, but real payment methods requiring 3DS will fail without a `return_url`. Add when real card acceptance is introduced.
+- **No lower-bound guard on `amount` in `settlement.py`** — `amount=0` or negative silently reaches Stripe and produces an `InvalidRequestError`. Input validation is caller's responsibility (Story 4.2); consider adding `assert amount > 0` as a defensive guard.
+- **Currency not normalized to lowercase before Stripe call** — `settlement.py` receives and forwards `currency` verbatim; Stripe requires lowercase (`"usd"` not `"USD"`). Story 4.2 route handler must call `.lower()` before passing to `create_payment_intent`.
+- **`stripe.api_key` mutable global — race window in multi-process/threaded deployments** — Safe for single-worker prototype. Multi-process uvicorn initializes per-process (safe). Threading models or tests importing before lifespan risk `AuthenticationError`. Document worker model constraint for production.
+- **Source-inspection test checks literal source text not transitive imports** — `inspect.getsource()` would not catch a future transitive SQLAlchemy import via a shared utility. Adequate for prototype; consider import graph scanning in production test harness.
+- **`asyncio.to_thread` propagates `BaseException` not caught by StripeError handler** — `KeyboardInterrupt`/`SystemExit` in the thread pool propagate to the event loop; caller's `except stripe.error.StripeError` will not intercept them. Graceful shutdown infrastructure concern; address when production signal handling is added.
 
 ## Deferred from: code review of 1-1-project-scaffold-and-package-management (2026-06-20)
 

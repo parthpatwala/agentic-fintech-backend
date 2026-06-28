@@ -82,3 +82,10 @@ class PaymentMandatePayload(BaseModel):
     amount: float = Field(..., gt=0)
     currency: str = Field(..., min_length=1)
     agent_id: str
+
+
+class CompleteResponse(BaseModel):
+    session_id: UUID
+    stripe_payment_intent_id: str
+    status: Literal["settled"]
+    settled_at: datetime
