@@ -15,4 +15,4 @@ RUN uv sync --frozen --no-cache --no-dev
 COPY . .
 
 # Run with the venv's uvicorn directly
-CMD [".venv/bin/uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD [".venv/bin/uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--no-access-log", "--log-level", "warning"]

@@ -23,7 +23,7 @@ def _configure_logging() -> None:
     """Configure JSON structured logging via python-json-logger."""
     handler = logging.StreamHandler()
     formatter = JsonFormatter(
-        fmt="%(asctime)s %(levelname)s %(name)s %(message)s",
+        fmt="%(asctime)s %(levelname)s %(name)s %(message)s %(event)s",
         rename_fields={
             "asctime": "timestamp",
             "levelname": "level",
@@ -35,6 +35,15 @@ def _configure_logging() -> None:
     root.handlers.clear()
     root.addHandler(handler)
     root.setLevel(logging.INFO)
+    for logger_name in ("uvicorn", "uvicorn.error", "uvicorn.access"):
+        uv_logger = logging.getLogger(logger_name)
+        uv_logger.handlers.clear()
+        uv_logger.propagate = False
+        uv_logger.addHandler(handler)
+        uv_logger.setLevel(logging.WARNING)
+
+
+_configure_logging()
 
 
 async def check_db_connectivity(engine: AsyncEngine) -> None:
@@ -45,8 +54,6 @@ async def check_db_connectivity(engine: AsyncEngine) -> None:
 
 @contextlib.asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-    _configure_logging()
-
     # 1. Validate all configuration — ValidationError raised here exits the process
     settings = Settings()
     logger.info("Configuration validated", extra={"event": "startup"})
@@ -164,4 +171,5 @@ app.include_router(complete.router)
 
 @app.get("/health")
 async def health() -> dict[str, str]:
+    logger.info("health_check", extra={"event": "health_check"})
     return {"status": "ok"}

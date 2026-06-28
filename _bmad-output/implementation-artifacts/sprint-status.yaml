@@ -37,7 +37,7 @@
 # - Use bmad-create-story to prepare the next backlog story for development
 
 generated: 2026-06-20
-last_updated: 2026-06-28T19:00:00+05:30
+last_updated: 2026-06-28T23:55:00+05:30
 project: agentic-fintech-backend
 project_key: NOKEY
 tracking_system: file-system
@@ -92,8 +92,8 @@ development_status:
   # Goal: Developer validates system with pytest, runs agent_client.py for
   #       a live purchase demo, and onboards collaborators via README alone.
   # ─────────────────────────────────────────────────────────────────────────────
-  epic-5: in-progress
+  epic-5: done
   5-1-automated-pytest-test-suite: done
-  5-2-agent-client-simulation-script: backlog
-  5-3-structured-logging-and-developer-documentation: backlog
+  5-2-agent-client-simulation-script: done
+  5-3-structured-logging-and-developer-documentation: done
   epic-5-retrospective: optional

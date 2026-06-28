@@ -1,5 +1,15 @@
 # Deferred Work
 
+## Deferred from: code review of 5-3-structured-logging-and-developer-documentation (2026-06-28)
+
+- **Uvicorn startup error logs emit `event: null`** — traceback/error lines from `uvicorn.error` lack structured `event` field; AC targets API-endpoint logs; acceptable for prototype startup failure path.
+
+## Deferred from: code review of 5-2-agent-client-simulation-script (2026-06-28)
+
+- **Unhandled httpx errors beyond Connect/Timeout** — `RemoteProtocolError`, `HTTPStatusError`, etc. propagate as raw tracebacks. Demo CLI acceptable for prototype; add broad `httpx.HTTPError` catch if script is used in automation.
+- **Missing tests for private-key-not-found and budget-parse failure** — T5 required list covered; additional negative-path tests would improve guardrails but not blocking.
+- **T6 manual smoke not verified against live stack** — docker app failed DB connect on startup (pre-existing `.env` config); verify locally before Story 5.3 README playbook references the script.
+
 ## Deferred from: code review of 5-1-automated-pytest-test-suite (2026-06-28)
 
 - **`session.commit()` before Stripe widens duplicate-settlement TOCTOU window** — read transaction is closed before Stripe call, releasing row-level implicit lock earlier. Concurrent duplicate `POST /api/complete` requests can both pass `status == "pending"`. Needs `SELECT … FOR UPDATE` or idempotency key; prototype accepts single-threaded demo usage.

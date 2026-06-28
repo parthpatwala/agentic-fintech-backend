@@ -95,6 +95,15 @@ async def complete(
 
     await session.commit()
 
+    logger.info(
+        "settlement_success",
+        extra={
+            "event": "settlement_success",
+            "session_id": str(invoice.session_id),
+            "stripe_payment_intent_id": payment_intent.id,
+        },
+    )
+
     return CompleteResponse(
         session_id=invoice.session_id,
         stripe_payment_intent_id=payment_intent.id,
