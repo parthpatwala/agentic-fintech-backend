@@ -2,6 +2,12 @@
 
 Agentic Banking Backend — a UCP/AP2 prototype demonstrating Human-Not-Present (HNP) autonomous machine commerce. An AI agent discovers products via UCP, creates a checkout session, signs an EdDSA payment mandate, and settles via Stripe Sandbox — all without human interaction at checkout.
 
+## Architecture Documentation
+
+- [Backend Architecture Runbook](docs/README-ARCH.md) — typing strategy, crypto blueprint, test mechanics
+- [Protocol Diagrams](docs/architecture/diagrams.md) — E2E agent flow, mandate handshake, discovery, and settlement pipeline
+- [Open Standard References](docs/architecture/protocol-references.md) — AP2, UCP, Google codelab links
+
 ## System Architecture
 
 The backend implements the merchant/verifier role in a simplified agentic commerce flow:

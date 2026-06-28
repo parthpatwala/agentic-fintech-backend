@@ -37,7 +37,7 @@
 # - Use bmad-create-story to prepare the next backlog story for development
 
 generated: 2026-06-20
-last_updated: 2026-06-28T23:55:00+05:30
+last_updated: 2026-06-28T12:00:00+05:30
 project: agentic-fintech-backend
 project_key: NOKEY
 tracking_system: file-system
@@ -97,3 +97,12 @@ development_status:
   5-2-agent-client-simulation-script: done
   5-3-structured-logging-and-developer-documentation: done
   epic-5-retrospective: optional
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Epic 6: Post-Sprint Architecture Documentation & Reference Guides
+  # Goal: Protocol diagrams, open-standard reference links, and README-ARCH
+  #       runbook for reviewers and incoming developers.
+  # ─────────────────────────────────────────────────────────────────────────────
+  epic-6: done
+  6-1-post-sprint-architecture-documentation-and-reference-guides: done
+  epic-6-retrospective: optional

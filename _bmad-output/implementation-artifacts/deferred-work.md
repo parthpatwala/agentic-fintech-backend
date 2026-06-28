@@ -83,6 +83,11 @@
 - **No Dockerfile `HEALTHCHECK`** — Docker itself cannot surface app health without it; Compose healthcheck covers local dev. Add for any shared/production deployment.
 - **README.md not copied before `uv sync`** — `pyproject.toml` declares `readme = "README.md"` but only `pyproject.toml` + `uv.lock` are copied before `RUN uv sync`. No impact on current `uv sync --no-dev` flow; would matter if a wheel build were added later.
 
+## Deferred from: code review of 6-1-post-sprint-architecture-documentation-and-reference-guides (2026-06-28)
+
+- **README Method B (ssh-keygen) produces OpenSSH-format public key** — `ssh-keygen` outputs `id_ed25519.pub` in OpenSSH authorized_keys format, not PEM. `load_pem_public_key()` in `crypto.load_public_key()` cannot parse it; server startup fails. Only openssl Method A works. Pre-existing README content from Story 5.3; not introduced by Story 6.1 Architecture section.
+- **No production key rotation or multi-worker deployment documentation** — Architecture docs describe prototype key separation and `app.state` lifespan pattern but do not cover key rotation, multi-process uvicorn duplication, or reload behavior. Production hardening out of prototype scope.
+
 ## Deferred from: code review of 4-1-stripe-sandbox-payment-service (2026-06-28)
 
 - **No idempotency key on `stripe.PaymentIntent.create`** — unsafe to retry on timeout/5xx; a duplicate retry would create a second charge. Stripe requires an `idempotency_key` for safe retries. Caller (Story 4.2) should supply a session-derived key.
