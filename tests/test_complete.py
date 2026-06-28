@@ -293,7 +293,8 @@ async def test_complete_commits_session_after_settlement(
         async with AsyncClient(transport=_transport, base_url="http://test") as client:
             await _post_complete(client, token)
 
-    mock_session.commit.assert_awaited_once()
+    mock_session.commit.assert_awaited()
+    assert mock_session.commit.await_count == 2
 
 
 @pytest.mark.asyncio

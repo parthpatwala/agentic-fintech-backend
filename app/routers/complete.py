@@ -38,6 +38,9 @@ async def complete(
             detail={"reason": "session_already_settled"},
         )
 
+    # Close the read transaction opened by get_invoice before Stripe + write path.
+    await session.commit()
+
     amount_cents = int(invoice.total_amount * Decimal("100"))
     try:
         payment_intent = await settlement_service.create_payment_intent(

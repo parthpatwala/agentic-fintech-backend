@@ -1,5 +1,11 @@
 # Deferred Work
 
+## Deferred from: code review of 5-1-automated-pytest-test-suite (2026-06-28)
+
+- **`session.commit()` before Stripe widens duplicate-settlement TOCTOU window** — read transaction is closed before Stripe call, releasing row-level implicit lock earlier. Concurrent duplicate `POST /api/complete` requests can both pass `status == "pending"`. Needs `SELECT … FOR UPDATE` or idempotency key; prototype accepts single-threaded demo usage.
+- **Redundant `session.commit()` after `session.begin()` context exits** — `async with session.begin()` already commits on clean exit; second commit is a no-op at best. Harmless but confusing; cleanup when touching settlement handler next.
+- **Publishing host port `5432:5432` may conflict with local Postgres** — developers with host Postgres on 5432 will get bind conflicts or connect to wrong instance. Document in README (Story 5.3) or use alternate host port mapping.
+
 ## Deferred from: code review of 4-2-mandate-gated-settlement-endpoint (2026-06-28)
 
 - **Concurrent duplicate settlement requests can both pass `status == "pending"` check (TOCTOU race)** — two parallel `POST /api/complete` calls for the same session can both read `pending`, both call Stripe, and double-charge. Needs `SELECT … FOR UPDATE` or idempotency key; prototype accepts single-threaded demo usage.
